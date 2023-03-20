@@ -25,11 +25,19 @@ const NewsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    tags: [String],
+    tags: {
+      type: [String],
+      required: true,
+    },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
     slug: {
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     thumbnail: {
       type: Object,

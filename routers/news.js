@@ -6,11 +6,18 @@ const {
   getSingleNews,
 } = require("../controllers/news");
 const multer = require("../middleware/multer");
+const { newsValidator, validate } = require("../middleware/newsValidator");
 
 // create news
-router.post("/", multer.single("thumbnail"), createNews);
+router.post(
+  "/",
+  multer.single("thumbnail"),
+  newsValidator,
+  validate,
+  createNews
+);
 
-// get all news
+// get all news,
 router.get("/", getAllNews);
 
 // get single news
