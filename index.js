@@ -6,6 +6,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const dotenv = require("dotenv");
+const newsRoutes = require("./routers/news");
 
 // Configuration
 dotenv.config();
@@ -22,6 +23,8 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.status(200).send("<h1>Welcome to News API.</h1>");
 });
+
+app.use("/api/news", newsRoutes);
 
 mongoose
   .connect(process.env.MONGO_URL, {
