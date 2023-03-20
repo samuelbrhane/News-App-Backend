@@ -1,3 +1,5 @@
+const News = require("../models/news");
+
 // create news
 const createNews = async (req, res) => {};
 
