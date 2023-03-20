@@ -5,9 +5,10 @@ const {
   getAllNews,
   getSingleNews,
 } = require("../controllers/news");
+const multer = require("../middleware/multer");
 
 // create news
-router.post("/", createNews);
+router.post("/", multer.single("thumbnail"), createNews);
 
 // get all news
 router.get("/", getAllNews);
