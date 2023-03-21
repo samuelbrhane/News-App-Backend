@@ -14,7 +14,6 @@ const NewsSchema = mongoose.Schema(
     },
     meta: {
       type: String,
-      required: true,
       trim: true,
     },
     authorMedia: {
@@ -41,10 +40,10 @@ const NewsSchema = mongoose.Schema(
     },
     thumbnail: {
       type: Object,
-      url: {
+      secure_url: {
         type: String,
       },
-      publicId: {
+      public_id: {
         type: String,
       },
     },
