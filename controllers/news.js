@@ -11,23 +11,27 @@ cloudinary.config({
 // create news
 const createNews = async (req, res) => {
   const { file } = req;
+  const { slug, featured } = req.body;
 
   try {
     // check if the slug is exist
-    const slugExists = await News.findOne({ slug: req.body.slug });
+    const slugExists = await News.findOne({ slug });
     if (slugExists)
       return res
         .status(401)
         .json({ error: "Please change the slug to make it unique" });
 
     // check if news is featured
-    const featured = JSON.parse(req.body.featured);
+    // check if news is featured
     if (featured) {
-      const featuredNews = await News.find({ featured: true });
+      const parseFeatured = JSON.parse(featured);
+      if (parseFeatured) {
+        const featuredNews = await News.find({ featured: true });
 
-      // remove one featured news if featured news greater than 4
-      if (featuredNews.length > 4) {
-        await News.deleteOne({ featured: true });
+        // remove one featured news if featured news greater than 4
+        if (featuredNews.length > 4) {
+          await News.deleteOne({ featured: true });
+        }
       }
     }
 
@@ -56,6 +60,77 @@ const getAllNews = async (req, res) => {
 };
 
 // get single news
-const getSingleNews = async (req, res) => {};
+const getSingleNews = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const news = await News.findById(id);
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-module.exports = { createNews, getAllNews, getSingleNews };
+// update news
+const updateNews = async (req, res) => {
+  const { file } = req;
+  const { slug, featured } = req.body;
+  try {
+    // check if the slug is exist
+    if (slug) {
+      const slugExists = await News.findOne({ slug });
+      if (slugExists)
+        return res
+          .status(401)
+          .json({ error: "Please change the slug to make it unique" });
+    }
+
+    // check if news is featured
+    if (featured) {
+      const parseFeatured = JSON.parse(featured);
+      if (parseFeatured) {
+        const featuredNews = await News.find({ featured: true });
+
+        // remove one featured news if featured news greater than 4
+        if (featuredNews.length > 4) {
+          await News.deleteOne({ featured: true });
+        }
+      }
+    }
+
+    if (file) {
+      const { public_id, secure_url } = await cloudinary.uploader.upload(
+        req.file.path
+      );
+      req.body.thumbnail = { public_id, secure_url };
+    }
+
+    const news = await News.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body },
+      { new: true }
+    );
+
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// delete news
+const deleteNews = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const news = await News.findByIdAndDelete(id);
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  createNews,
+  getAllNews,
+  getSingleNews,
+  updateNews,
+  deleteNews,
+};
