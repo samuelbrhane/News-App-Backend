@@ -6,6 +6,8 @@ const {
   getSingleNews,
   updateNews,
   deleteNews,
+  getFeaturedNews,
+  searchNews,
 } = require("../controllers/news");
 const multer = require("../middleware/multer");
 const { newsValidator, validate } = require("../middleware/newsValidator");
@@ -22,8 +24,14 @@ router.post(
 // get all news,
 router.get("/", getAllNews);
 
+// get featured news
+router.get("/featured", getFeaturedNews);
+
+// search news
+router.get("/search/news", searchNews);
+
 // get single news
-router.get("/:id", getSingleNews);
+router.get("/:slug", getSingleNews);
 
 // update news
 router.patch("/:id", updateNews);

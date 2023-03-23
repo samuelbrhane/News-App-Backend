@@ -22,7 +22,6 @@ const createNews = async (req, res) => {
         .json({ error: "Please change the slug to make it unique" });
 
     // check if news is featured
-    // check if news is featured
     if (featured) {
       const parseFeatured = JSON.parse(featured);
       if (parseFeatured) {
@@ -51,8 +50,12 @@ const createNews = async (req, res) => {
 
 // get all news
 const getAllNews = async (req, res) => {
+  const { pageNo = 0, limit = 10 } = req.query;
   try {
-    const news = await News.find();
+    const news = await News.find()
+      .sort({ createdAt: -1 })
+      .skip(parseInt(pageNo) * parseInt(limit))
+      .limit(parseInt(limit));
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -61,9 +64,9 @@ const getAllNews = async (req, res) => {
 
 // get single news
 const getSingleNews = async (req, res) => {
-  const { id } = req.params;
+  const { slug } = req.params;
   try {
-    const news = await News.findById(id);
+    const news = await News.findOne({ slug });
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -120,7 +123,42 @@ const updateNews = async (req, res) => {
 const deleteNews = async (req, res) => {
   const { id } = req.params;
   try {
-    const news = await News.findByIdAndDelete(id);
+    const news = await News.findById(id);
+    if (!news) return res.status(401).json({ error: "No news with this id." });
+
+    // remove image from cloudinary
+    const { public_id } = news.thumbnail;
+    if (public_id) {
+      await cloudinary.uploader.destroy(public_id);
+    }
+
+    // remove news form the database
+    const deletedNews = await News.findByIdAndDelete(id);
+    res.status(200).json(deletedNews);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// get featured news
+const getFeaturedNews = async (req, res) => {
+  try {
+    const news = await News.find({ featured: true }).sort({ createdAt: -1 });
+    res.status(200).json(news);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// get search news by title
+const searchNews = async (req, res) => {
+  const { title } = req.query;
+  if (!title?.trim())
+    return res.status(401).json({ error: "No News With This Title" });
+  try {
+    const news = await News.find({
+      title: { $regex: new RegExp(title, "i") },
+    }).sort({ createdAt: -1 });
     res.status(200).json(news);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -133,4 +171,6 @@ module.exports = {
   getSingleNews,
   updateNews,
   deleteNews,
+  getFeaturedNews,
+  searchNews,
 };
