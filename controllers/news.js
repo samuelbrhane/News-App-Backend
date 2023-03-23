@@ -165,6 +165,16 @@ const searchNews = async (req, res) => {
   }
 };
 
+// upload image
+const uploadImage = async (req, res) => {
+  const { file } = req;
+  if (!file) return res.status(404).json({ error: "Image file is missing" });
+
+  const { secure_url } = await cloudinary.uploader.upload(file?.path);
+
+  res.status(200).json({ secure_url });
+};
+
 module.exports = {
   createNews,
   getAllNews,
@@ -173,4 +183,5 @@ module.exports = {
   deleteNews,
   getFeaturedNews,
   searchNews,
+  uploadImage,
 };

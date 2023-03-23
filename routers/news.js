@@ -8,6 +8,7 @@ const {
   deleteNews,
   getFeaturedNews,
   searchNews,
+  uploadImage,
 } = require("../controllers/news");
 const multer = require("../middleware/multer");
 const { newsValidator, validate } = require("../middleware/newsValidator");
@@ -38,5 +39,8 @@ router.patch("/:id", updateNews);
 
 // delete news
 router.delete("/:id", deleteNews);
+
+// upload image
+router.post("/upload/image", multer.single("image"), uploadImage);
 
 module.exports = router;
