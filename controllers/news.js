@@ -50,13 +50,14 @@ const createNews = async (req, res) => {
 
 // get all news
 const getAllNews = async (req, res) => {
-  const { pageNo = 0, limit = 10 } = req.query;
+  const { pageNo = 0, limit = 9 } = req.query;
   try {
     const news = await News.find()
       .sort({ createdAt: -1 })
       .skip(parseInt(pageNo) * parseInt(limit))
       .limit(parseInt(limit));
-    res.status(200).json(news);
+    const count = await News.countDocuments();
+    res.status(200).json({ news, count });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -169,9 +170,7 @@ const searchNews = async (req, res) => {
 const uploadImage = async (req, res) => {
   const { file } = req;
   if (!file) return res.status(404).json({ error: "Image file is missing" });
-
   const { secure_url } = await cloudinary.uploader.upload(file?.path);
-
   res.status(200).json({ secure_url });
 };
 
